@@ -4,13 +4,15 @@ constexpr int D = 64;   // head_dim
 constexpr int BLOCK_S = 128; // seq block size
 
 // layout A: k_cache_A[s][h][d] (NHD: seq_len, n_heads, head_dim)
-alignas(64) float k_cache_A[S][H][D];
+alignas(64) volatile float k_cache_A[S][H][D];
 
-void attn_scores_layoutA(const float* __restrict q,
-                        int h0,
-                        float* __restrict out) {
+void attn_dot_layoutA(const float* __restrict q,
+                      int h0,
+                      float* __restrict out) {
   for (int s = 0; s < S; ++s) {
     float acc = 0.0f;
+
+    #pragma clang loop vectorize(enable)
     for (int d = 0; d < D; ++d) {
       float k = k_cache_A[s][h0][d];
       acc += q[d] * k;
