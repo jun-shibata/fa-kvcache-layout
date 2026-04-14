@@ -1,10 +1,9 @@
 constexpr int S = 1024; // seq_len
 constexpr int H = 16;   // n_heads
 constexpr int D = 64;   // head_dim
-constexpr int BLOCK_S = 128; // seq block size
 
 // layout A: k_cache_A[s][h][d] (NHD: seq_len, n_heads, head_dim)
-alignas(64) volatile float k_cache_A[S][H][D];
+alignas(64) float k_cache_A[S][H][D];
 
 void attn_dot_layoutA(const float* __restrict q,
                       int h0,
